@@ -1,7 +1,7 @@
 (** {1 PTX AST}
 
     This module defines the abstract syntax tree for concrete NVIDIA PTX
-    assembly code targeting Compute Capability [sm_80].
+    assembly code targeting Compute Capability [sm_75].
 
     It represents top-level assembler directives, register declarations,
     entry functions, and hardware PTX instructions prior to final string serialization. *)
@@ -10,16 +10,17 @@ open Types
 
 (** Operands appearing in PTX instructions. *)
 type ptx_operand =
-  | Reg      of ptx_reg             (** Register operand (e.g., %r0, %rd1, %f2, %p0) *)
-  | ImmInt   of int64               (** Integer immediate literal *)
-  | ImmFloat of float               (** Floating-point immediate literal *)
-  | Mem      of ptx_reg * int option (** Memory address dereference: [%reg] or [%reg + offset] *)
-  | ParamRef of string              (** Kernel parameter address dereference: [param_name] *)
+  | Reg        of ptx_reg              (** Register operand (e.g., %r0, %rd1, %f2, %p0) *)
+  | SpecialReg of string               (** Predefined special register (e.g., %tid.x, %ctaid.x, %ntid.x) *)
+  | ImmInt     of int64                (** Integer immediate literal *)
+  | ImmFloat   of float                (** Floating-point immediate literal *)
+  | Mem        of ptx_reg * int option (** Memory address dereference: [%reg] or [%reg + offset] *)
+  | ParamRef   of string               (** Kernel parameter address dereference: [param_name] *)
 
 (** Module-level PTX assembler directives. *)
 type directive =
   | Version     of float (** .version <maj.min> (e.g., .version 7.0) *)
-  | Target      of string (** .target <arch> (e.g., .target sm_80) *)
+  | Target      of string (** .target <arch> (e.g., .target sm_75) *)
   | AddressSize of int    (** .address_size <bits> (e.g., .address_size 64) *)
 
 (** Individual statements within a PTX kernel body. *)
@@ -33,6 +34,8 @@ type statement =
   (* --- Data Movement & Memory --- *)
   | Mov        of ptx_type * ptx_reg * ptx_operand
     (** Register move: [mov.type dst, src] *)
+  | CvtaToGlobal of ptx_reg * ptx_reg
+    (** Address space conversion: [cvta.to.global.u64 dst, src] *)
   | LdParam    of ptx_type * ptx_reg * string
     (** Load kernel parameter: [ld.param.type dst, [param_name]] *)
   | LdGlobal   of ptx_type * ptx_reg * ptx_operand * cache_modifier option
@@ -47,6 +50,8 @@ type statement =
     (** Subtraction: [sub.type dst, src1, src2] *)
   | Mul        of ptx_type * ptx_reg * ptx_operand * ptx_operand
     (** Standard multiplication: [mul.lo.type dst, src1, src2] *)
+  | Mad        of ptx_type * ptx_reg * ptx_operand * ptx_operand * ptx_operand
+    (** Multiply-and-add: [mad.lo.type dst, src1, src2, src3] *)
   | MulWideU32 of ptx_reg * ptx_operand * ptx_operand
     (** Wide 32-to-64 bit multiplication for pointer strides: [mul.wide.u32 dst_u64, src1_u32, src2_u32] *)
   | AddU64     of ptx_reg * ptx_operand * ptx_operand

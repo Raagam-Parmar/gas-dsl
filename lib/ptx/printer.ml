@@ -2,7 +2,7 @@
 
     This module provides pretty-printing combinators for serializing the
     PTX abstract syntax tree into syntactically valid NVIDIA PTX assembly text
-    targeting Compute Capability [sm_80] (NVIDIA Ampere / A30 architecture).
+    targeting Compute Capability [sm_75] (NVIDIA Ampere / A30 architecture).
 
     It uses the [Fmt] library to format directives, register banks,
     kernel signatures, memory operations, hardware atomics, and control flow. *)
@@ -51,6 +51,7 @@ let pp_atomic_action ppf = function
 (** Pretty-prints a PTX instruction operand. *)
 let pp_operand ppf = function
   | Reg r -> pp_ptx_reg ppf r
+  | SpecialReg s -> Fmt.pf ppf "%s" s
   | ImmInt i -> Fmt.int64 ppf i
   | ImmFloat f ->
       (* Format whole float constants with decimal point for PTX parser *)
@@ -92,6 +93,9 @@ let pp_statement ppf = function
   | Mov (ty, dst, src) ->
       Fmt.pf ppf "    mov%a %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src
 
+  | CvtaToGlobal (dst, src) ->
+      Fmt.pf ppf "    cvta.to.global.u64 %a, %a;" pp_ptx_reg dst pp_ptx_reg src
+
   | LdParam (ty, dst, param_name) ->
       Fmt.pf ppf "    ld.param%a %a, [%s];" pp_ptx_type ty pp_ptx_reg dst param_name
 
@@ -125,6 +129,15 @@ let pp_statement ppf = function
         | _   -> Fmt.str "mul.lo%a" pp_ptx_type ty
       in
       Fmt.pf ppf "    %s %a, %a, %a;" op pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Mad (ty, dst, src1, src2, src3) ->
+      let op =
+        match ty with
+        | S32 -> "mad.lo.s32"
+        | U32 -> "mad.lo.u32"
+        | _   -> Fmt.str "mad.lo%a" pp_ptx_type ty
+      in
+      Fmt.pf ppf "    %s %a, %a, %a, %a;" op pp_ptx_reg dst pp_operand src1 pp_operand src2 pp_operand src3
 
   | MulWideU32 (dst, src1, src2) ->
       (* 32-bit to 64-bit wide multiply for pointer indexing *)
