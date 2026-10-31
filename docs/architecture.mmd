@@ -1,0 +1,36 @@
+flowchart TD
+    subgraph Frontend["OCaml EDSL Frontend"]
+        UserAlgo["User Algorithm Definition\n(SSSP / PageRank)"]
+        SmartCtors["Phantom-Typed Combinators\n('a expr, gather, scatter, apply)"]
+        UserAlgo --> SmartCtors
+    end
+
+    subgraph Compiler["Compiler Core"]
+        AST["Typed EDSL AST"]
+        IR["Intermediate Representation (IR)\n- SoA State Schema\n- Memory Loads / Pointer Math\n- Virtual Register SSA\n- Hardware Atomics & CAS Loops"]
+        Codegen["PTX Code Generator (sm_75)"]
+        
+        SmartCtors --> AST
+        AST --> IR
+        IR --> Codegen
+    end
+
+    subgraph Output["Artifacts"]
+        ScatterPTX["kernel_scatter.ptx\n(Edge-Parallel Atomic Push)"]
+        ApplyPTX["kernel_apply.ptx\n(Vertex-Parallel State Transform)"]
+        Codegen --> ScatterPTX
+        Codegen --> ApplyPTX
+    end
+
+    subgraph Runtime["Host Runtime Harness (C++ / CUDA Driver API)"]
+        GraphLoader["CSR Loader (Augmented with src array)"]
+        CUDAInit["cuModuleLoadData & cuLaunchKernel"]
+        IterLoop["Host Iteration Loop & Convergence Check"]
+        CPURef["CPU Golden Reference Validator"]
+        
+        GraphLoader --> CUDAInit
+        ScatterPTX --> CUDAInit
+        ApplyPTX --> CUDAInit
+        CUDAInit --> IterLoop
+        IterLoop --> CPURef
+    end

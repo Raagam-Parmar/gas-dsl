@@ -1,0 +1,4 @@
+# Ignore artefacts
+*.pdf
+*.svg
+*.png
