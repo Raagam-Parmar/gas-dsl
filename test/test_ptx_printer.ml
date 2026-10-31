@@ -46,9 +46,14 @@ let test_ptx_printer_and_ptxas () =
   print_string ptx_code;
   print_endline "--------------------------------------------------";
 
-  (* Assemble emitted text with NVIDIA ptxas if available on system *)
-  let ptxas_bin = "/usr/local/cuda-13.3/bin/ptxas" in
-  if Sys.file_exists ptxas_bin then begin
+  (* Assemble emitted text with NVIDIA ptxas if available on system or PATH *)
+  let ptxas_bin =
+    let default_cuda = "/usr/local/cuda-13.3/bin/ptxas" in
+    if Sys.file_exists default_cuda then default_cuda
+    else if Sys.command "which ptxas > /dev/null 2>&1" = 0 then "ptxas"
+    else ""
+  in
+  if ptxas_bin <> "" then begin
     let (tmp_file, tmp_out) = Filename.open_temp_file "kernel_" ".ptx" in
     output_string tmp_out ptx_code;
     close_out tmp_out;
@@ -59,7 +64,7 @@ let test_ptx_printer_and_ptxas () =
       failwith (Printf.sprintf "ptxas validation failed with exit code %d" exit_code);
     print_endline "  [OK] ptxas -arch=sm_80 assembled generated PTX with 0 errors!"
   end else
-    print_endline "  [SKIP] ptxas not found at /usr/local/cuda-13.3/bin/ptxas"
+    print_endline "  [SKIP] ptxas not found on system or PATH"
 
 let () =
   print_endline "=== Running PTX Pretty-Printer Tests ===";
