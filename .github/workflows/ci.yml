@@ -1,34 +1,17 @@
 name: CI
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
-  ci:
-    name: Build, Test & Doc
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: ocaml/opam:debian-12-ocaml-5.2
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-      - name: Configure Git Workspace Ownership
-        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-
-      - name: Install Dependencies
-        run: opam install . --deps-only --with-test --with-doc --yes --no-depext
-
-      - name: Build, Test, and Document (Unified Parallel Pass)
-        run: opam exec -- dune build @all @runtest @doc
-
-      - name: Upload HTML Documentation Artifact
-        uses: actions/upload-artifact@v7
+      - uses: ocaml/setup-ocaml@v3
         with:
-          name: odoc-html-docs
-          path: _build/default/_doc/_html/
-          retention-days: 14
+          ocaml-compiler: 5.2.x
+
+      - run: opam install . --deps-only --with-test --with-doc --yes
+
+      - run: dune build @all @runtest @doc
