@@ -107,13 +107,15 @@ let count_regs (body : instruction list) : reg_counts =
   in
   let bump_op = function Reg r -> bump r | _ -> () in
   List.iter (function
-    | GetTid r | GetNtid r | GetCtaid r -> bump r
+    | GetTid r | GetNtid r | GetCtaid r | GetThreadId r -> bump r
     | LoadParam (r, _)          -> bump r
+    | CvtaToGlobal (d, s)       -> bump d; bump s
     | LoadGlobal  (d, a, _)     -> bump d; bump a
     | StoreGlobal (a, s, _)     -> bump a; bump s
     | MulWideU32  (d, s, _)     -> bump d; bump s
     | AddU64      (d, b, o)     -> bump d; bump b; bump o
     | Arith (_, d, a, b, _)     -> bump d; bump_op a; bump_op b
+    | Mad (d, a, b, c, _)       -> bump d; bump_op a; bump_op b; bump_op c
     | Compare (_, d, a, b, _)   -> bump d; bump_op a; bump_op b
     | Atomic (_, d, a, v, _)    -> bump d; bump a; bump_op v
     | CasLoop { target_addr; new_val; cur_val; pred_reg; _ } ->

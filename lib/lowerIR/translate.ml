@@ -8,11 +8,13 @@ module PA = Ptx.Ast
 
 let lower_instr (cas_counter : int ref) (instr : instruction) : PA.statement list =
   match instr with
-  | GetTid   dst -> [ PA.Mov (P.U32, lower_reg dst, PA.Reg (P.R 1000)) ]
-  | GetNtid  dst -> [ PA.Mov (P.U32, lower_reg dst, PA.Reg (P.R 1001)) ]
-  | GetCtaid dst -> [ PA.Mov (P.U32, lower_reg dst, PA.Reg (P.R 1002)) ]
+  | GetTid      dst -> [ PA.Mov (P.U32, lower_reg dst, PA.SpecialReg "%tid.x") ]
+  | GetThreadId dst -> [ PA.Mov (P.U32, lower_reg dst, PA.SpecialReg "%tid.x") ]
+  | GetNtid     dst -> [ PA.Mov (P.U32, lower_reg dst, PA.SpecialReg "%ntid.x") ]
+  | GetCtaid    dst -> [ PA.Mov (P.U32, lower_reg dst, PA.SpecialReg "%ctaid.x") ]
 
   | LoadParam (dst, name) -> [ PA.LdParam (lower_type dst.ty, lower_reg dst, name) ]
+  | CvtaToGlobal (dst, src) -> [ PA.CvtaToGlobal (lower_reg dst, lower_reg src) ]
 
   | LoadGlobal (dst, addr, _ty) -> [ PA.LdGlobal (lower_type dst.ty, lower_reg dst, PA.Mem (lower_reg addr, None), None) ]
 
@@ -23,6 +25,7 @@ let lower_instr (cas_counter : int ref) (instr : instruction) : PA.statement lis
   | AddU64 (dst, base, offset) -> [ PA.AddU64 (lower_reg dst, PA.Reg (lower_reg base), PA.Reg (lower_reg offset)) ]
 
   | Arith (op, dst, src1, src2, ty) -> [ lower_arith op (lower_type ty) (lower_reg dst) (lower_operand src1) (lower_operand src2) ]
+  | Mad (dst, a, b, c, ty) -> [ PA.Mad (lower_type ty, lower_reg dst, lower_operand a, lower_operand b, lower_operand c) ]
 
   | Compare (op, dst, src1, src2, ty) -> [ PA.SetP (cmp_str op ty, lower_reg dst, lower_operand src1, lower_operand src2) ]
 
@@ -50,8 +53,8 @@ let translate_kernel (k : kernel) : PA.entry_function =
     PA.body   = decls @ instrs;
   }
 
-let translate (kernels : kernel list) : PA.program =
+let translate ?(target = "sm_75") (kernels : kernel list) : PA.program =
   {
-    PA.directives = [ PA.Version 7.0; PA.Target "sm_80"; PA.AddressSize 64 ];
+    PA.directives = [ PA.Version 7.0; PA.Target target; PA.AddressSize 64 ];
     PA.functions  = List.map translate_kernel kernels;
   }

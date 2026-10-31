@@ -36,7 +36,9 @@ type cmp_op =
 type instruction =
   (* --- Thread & Block Identification --- *)
   | GetTid       of reg
-    (** Compute global 1D thread ID: [reg = ctaid.x * ntid.x + tid.x] *)
+    (** Read thread index within block: [reg = tid.x] *)
+  | GetThreadId  of reg
+    (** Read thread index within block: [reg = tid.x] *)
   | GetNtid      of reg
     (** Read thread block dimension: [reg = ntid.x] *)
   | GetCtaid     of reg
@@ -45,6 +47,8 @@ type instruction =
   (* --- Parameter & Memory Operations --- *)
   | LoadParam    of reg * string
     (** Load a kernel parameter (e.g., buffer pointer or item count) into a register *)
+  | CvtaToGlobal of reg * reg
+    (** Convert parameter/generic pointer to global address: [dst = cvta.to.global.u64 src] *)
   | LoadGlobal   of reg * reg * data_type
     (** Load value from global memory: [dst_reg = ld.global [addr_reg]] *)
   | StoreGlobal  of reg * reg * data_type
@@ -59,6 +63,8 @@ type instruction =
   (* --- Arithmetic and Comparison --- *)
   | Arith        of binop * reg * operand * operand * data_type
     (** Compute binary operation on two operands: [dst = op1 (binop) op2] *)
+  | Mad          of reg * operand * operand * operand * data_type
+    (** Multiply-add operation: [dst = src1 * src2 + src3] *)
   | Compare      of cmp_op * reg * operand * operand * data_type
     (** Compare two operands and store boolean flag into a predicate register ([Pred]) *)
 
