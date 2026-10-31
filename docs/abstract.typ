@@ -27,28 +27,32 @@
     #text(size: 18pt, weight: "bold", fill: rgb("#1d3557"))[GAS-DSL: Gather-Apply-Scatter EDSL for GPU Graph Analytics] \
     #v(3pt)
     #text(size: 11pt, weight: "medium", fill: rgb("#457b9d"))[Project Abstract & Architecture Specification] \
+    #v(5pt)
+    #text(size: 10pt, weight: "semibold", fill: rgb("#264653"))[
+      Raagam Parmar #h(12pt) • #h(12pt) M. Sreenath Karthick #h(12pt) • #h(12pt) M. Murali Karthick
+    ] \
     #v(6pt)
     #line(length: 100%, stroke: 1.2pt + rgb("#1d3557"))
   ]
 ]
 
-#v(4pt)
+#v(2pt)
 
 == 1. Summary
 
 *GAS-DSL* is a statically-typed domain-specific language embedded in OCaml designed to compile Gather-Apply-Scatter (GAS) graph processing algorithms directly into standalone NVIDIA PTX (Parallel Thread Execution) assembly. Targeting static graphs stored in an augmented Compressed Sparse Row (CSR) format, the compiler translates high-level graph specifications into decoupled, high-performance GPU kernels for iterative analytics such as *Single-Source Shortest Path (SSSP)* and *PageRank*, without requiring complex host runtimes or dynamic GPU memory management.
 
-#v(6pt)
+#v(4pt)
 
 == 2. Architecture Design
 
 The system decouples compilation from runtime execution. The OCaml frontend takes user-defined vertex/edge schemas and GAS logic, lowering them through a platform-agnostic intermediate representation into optimized PTX text. The generated kernels are loaded and dispatched by a lightweight host test harness via the low-level CUDA Driver API.
 
-#v(4pt)
+#v(2pt)
 
 #align(center)[
   #figure(
-    image("architecture.png", height: 13.5cm),
+    image("architecture.png", height: 12.6cm),
     caption: [GAS-DSL End-to-End Compiler and Host Execution Architecture.]
   ) <fig:arch>
 ]
