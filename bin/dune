@@ -1,0 +1,4 @@
+(executable
+ (public_name gas-dsl)
+ (name main)
+ (libraries gas_dsl))
