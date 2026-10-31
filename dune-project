@@ -17,10 +17,8 @@
 
 (package
  (name gas-dsl)
- (synopsis "A short synopsis")
- (description "A longer description")
- (depends ocaml)
+ (synopsis "GAS-DSL: Gather-Apply-Scatter EDSL for GPU Graph Analytics")
+ (description "An OCaml-based DSL compiler that translates GAS graph algorithms to NVIDIA PTX assembly for the A30 GPU cluster.")
+ (depends ocaml fmt)
  (tags
-  ("add topics" "to describe" your project)))
-
-; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
+  ("gpu" "cuda" "ptx" "dsl" "graph")))
