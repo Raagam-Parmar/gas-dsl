@@ -9,3 +9,8 @@
 (test
  (name test_translate_lower_ir_to_ptx)
  (libraries gas_dsl str))
+
+(test
+ (name test_vecadd_LIR_to_ptx)
+ (libraries gas_dsl))
+

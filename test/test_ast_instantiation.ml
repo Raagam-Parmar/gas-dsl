@@ -68,7 +68,7 @@ let test_ptx_ast () =
   let prog = {
     directives = [
       Version 7.0;
-      Target "sm_80";
+      Target "sm_75";
       AddressSize 64;
     ];
     functions = [{

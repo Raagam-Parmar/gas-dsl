@@ -56,7 +56,7 @@ let test_header_directives () =
   let prog   = Translate.translate [k] in
   let ptx    = Ptx.Printer.to_string prog in
   check_contains "version directive"      ptx ".version 7.0";
-  check_contains "target sm_80"           ptx ".target sm_80";
+  check_contains "target sm_75"           ptx ".target sm_75";
   check_contains "address_size 64"        ptx ".address_size 64"
 
 (* ── test 2: kernel name and params ──────────────────────────────────── *)

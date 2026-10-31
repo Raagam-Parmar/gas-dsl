@@ -15,7 +15,7 @@ let test_ptx_printer_and_ptxas () =
   let prog = {
     directives = [
       Version 7.0;
-      Target "sm_80";
+      Target "sm_75";
       AddressSize 64;
     ];
     functions = [{
@@ -57,12 +57,12 @@ let test_ptx_printer_and_ptxas () =
     let (tmp_file, tmp_out) = Filename.open_temp_file "kernel_" ".ptx" in
     output_string tmp_out ptx_code;
     close_out tmp_out;
-    let cmd = Printf.sprintf "%s -arch=sm_80 -m64 %s -o /dev/null 2>&1" ptxas_bin tmp_file in
+    let cmd = Printf.sprintf "%s -arch=sm_75 -m64 %s -o /dev/null 2>&1" ptxas_bin tmp_file in
     let exit_code = Sys.command cmd in
     Sys.remove tmp_file;
     if exit_code <> 0 then
       failwith (Printf.sprintf "ptxas validation failed with exit code %d" exit_code);
-    print_endline "  [OK] ptxas -arch=sm_80 assembled generated PTX with 0 errors!"
+    print_endline "  [OK] ptxas -arch=sm_75 assembled generated PTX with 0 errors!"
   end else
     print_endline "  [SKIP] ptxas not found on system or PATH"
 
