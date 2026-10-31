@@ -1,4 +1,5 @@
 (include_subdirs qualified)
 
 (library
- (name gas_dsl))
+ (name gas_dsl)
+ (libraries fmt))
