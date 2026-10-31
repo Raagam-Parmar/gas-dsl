@@ -2,4 +2,5 @@
 
 (library
  (name gas_dsl)
+ (public_name gas-dsl)
  (libraries fmt))
