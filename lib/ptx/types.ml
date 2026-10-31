@@ -1,8 +1,8 @@
 (** {1 PTX Types}
 
     This module defines concrete syntax types for the NVIDIA Parallel Thread
-    Execution (PTX) ISA, specifically targeting Compute Capability [sm_80]
-    (NVIDIA Ampere / A30 GPU architecture).
+    Execution (PTX) ISA, specifically targeting Compute Capability [sm_75]
+    (NVIDIA Turing GPU architecture).
 
     It models PTX state spaces, register banks (%r, %rd, %f, %p), cache
     behavior modifiers, and atomic operation types. *)
@@ -40,7 +40,7 @@ type cache_modifier =
 
 (** Hardware atomic actions supported on PTX global memory. *)
 type atomic_action =
-  | AtomAdd (** add - Atomic addition (supports .u32, .s32, and native .f32 on sm_80) *)
+  | AtomAdd (** add - Atomic addition (supports .u32, .s32, and .f32) *)
   | AtomMin (** min - Atomic minimum (supports .u32, .s32) *)
   | AtomMax (** max - Atomic maximum (supports .u32, .s32) *)
   | AtomCas (** cas - Atomic Compare-And-Swap (supports .b32) *)
