@@ -5,3 +5,7 @@
 (test
  (name test_ptx_printer)
  (libraries gas_dsl))
+
+(test
+ (name test_translate_lower_ir_to_ptx)
+ (libraries gas_dsl str))
