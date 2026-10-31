@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build, Test, and Document (OCaml ${{ matrix.ocaml-compiler }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ocaml-compiler:
+          - "5.2.x"
+          - "5.1.x"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          dune-cache: true
+
+      - name: Install dependencies
+        run: |
+          opam update
+          opam install . --deps-only --with-test --with-doc --yes
+
+      - name: Build project
+        run: opam exec -- dune build
+
+      - name: Run tests
+        run: opam exec -- dune runtest
+
+      - name: Build documentation (odoc)
+        run: opam exec -- dune build @doc
+
+      - name: Upload HTML documentation artifact
+        if: matrix.ocaml-compiler == '5.2.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: odoc-html-docs
+          path: _build/default/_doc/_html/
+          retention-days: 14
