@@ -1,3 +1,7 @@
 (test
- (name test_gas_dsl)
+ (name test_ast_instantiation)
+ (libraries gas_dsl))
+
+(test
+ (name test_ptx_printer)
  (libraries gas_dsl))

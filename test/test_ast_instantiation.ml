@@ -1,11 +1,16 @@
-(** Unit tests verifying that AST and Type definitions in GraphIR,
-    LowerIR, and PTX can be instantiated cleanly without type errors. *)
+(** {1 AST & Type Instantiation Tests}
+
+    This test suite verifies that algebraic data types and AST node
+    constructors across GraphIR, LowerIR, and PTX can be instantiated
+    cleanly without type errors or representation mismatches. *)
 
 open Gas_dsl
 
+(** Verifies instantiation of GraphIR types and AST constructs. *)
 let test_graph_ir () =
   let open GraphIR.Types in
   let open GraphIR.Ast in
+  (* Define sample property fields for vertex distance and edge weight *)
   let dist_field = { name = "dist"; ty = TyF32 } in
   let weight_field = { name = "weight"; ty = TyF32 } in
   let gather = BinOp (Add, LoadField (dist_field, Src), LoadField (weight_field, EdgeAttr)) in
@@ -24,6 +29,7 @@ let test_graph_ir () =
   assert (algo.name = "sssp");
   print_endline "  [OK] GraphIR AST instantiated successfully."
 
+(** Verifies instantiation of LowerIR machine registers, instructions, and CAS loops. *)
 let test_lower_ir () =
   let open LowerIR.Types in
   let open LowerIR.Ast in
@@ -55,6 +61,7 @@ let test_lower_ir () =
   assert (List.length k.body = 7);
   print_endline "  [OK] LowerIR AST instantiated successfully."
 
+(** Verifies instantiation of PTX assembly AST nodes and directives. *)
 let test_ptx_ast () =
   let open Ptx.Types in
   let open Ptx.Ast in
@@ -79,8 +86,8 @@ let test_ptx_ast () =
   print_endline "  [OK] PTX AST instantiated successfully."
 
 let () =
-  print_endline "Running GAS-DSL IR syntax and type validation tests...";
+  print_endline "=== Running AST Instantiation Tests ===";
   test_graph_ir ();
   test_lower_ir ();
   test_ptx_ast ();
-  print_endline "All IR grammar and type tests passed successfully!"
+  print_endline "=== All AST Instantiation Tests Passed! ===\n"
