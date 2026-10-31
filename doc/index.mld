@@ -1,0 +1,31 @@
+{0 GAS-DSL Documentation}
+
+{b GAS-DSL} is an OCaml-based domain-specific language compiler that translates
+Gather-Apply-Scatter (GAS) graph processing algorithms into standalone NVIDIA PTX
+assembly targeting the NVIDIA A30 GPU ({b Compute Capability [sm_80]}).
+
+{1 Implementation Modules}
+
+{2 High-Level Graph IR}
+{ul
+  {- {!Gas_dsl.GraphIR.Types}: Primitive types, reduction operators, locations, and state field descriptors.}
+  {- {!Gas_dsl.GraphIR.Ast}: High-level graph expression trees, scatter/apply stages, and algorithm definitions.}
+}
+
+{2 Low-Level Machine IR}
+{ul
+  {- {!Gas_dsl.LowerIR.Types}: Machine data types, virtual registers (including predicates), memory spaces, and atomics.}
+  {- {!Gas_dsl.LowerIR.Ast}: Linear SSA instructions, thread indexing, 64-bit address scaling, global memory ops, and CAS loops.}
+}
+
+{2 NVIDIA PTX Assembly Backend}
+{ul
+  {- {!Gas_dsl.Ptx.Types}: PTX ISA types for [sm_80], register banks, state spaces, cache modifiers, and atomic actions.}
+  {- {!Gas_dsl.Ptx.Ast}: Concrete PTX assembly statements, header directives, declarations, instructions, and entry functions.}
+  {- {!Gas_dsl.Ptx.Printer}: Pretty-printer combinators serializing PTX AST to assembly text using [Fmt].}
+}
+
+{2 Frontend EDSL}
+{ul
+  {- {!Gas_dsl.Edsl}: User-facing combinators and smart constructors for authoring graph algorithms.}
+}
