@@ -1,4 +1,4 @@
-(** {1 GraphIR → LowerIR Helper Utilities}
+(** {1 GraphIR -> LowerIR Helper Utilities}
 
     This module provides the supporting infrastructure consumed by
     {!GraphIR.Translate} when lowering a high-level {!GraphIR.Ast.algorithm}

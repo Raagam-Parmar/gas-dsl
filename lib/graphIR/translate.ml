@@ -1,4 +1,4 @@
-(** {1 GraphIR → LowerIR Translation Pass}
+(** {1 GraphIR -> LowerIR Translation Pass}
 
     This module is the central lowering pass of the compiler mid-end.
     It takes a fully specified {!GraphIR.Ast.algorithm} and emits a list of
