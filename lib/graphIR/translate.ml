@@ -48,10 +48,10 @@ let rec lower_expr
 
   | LoadField (field, loc) ->
     let loc_tag = match loc with
-      | Types.Src     -> "src"
-      | Types.Dst     -> "dst"
+      | Types.Src      -> "src"
+      | Types.Dst      -> "dst"
       | Types.EdgeAttr -> "edge"
-      | Types.Self    -> "self"
+      | Types.Self     -> "self"
     in
     (* vertex index to use when addressing this field *)
     let idx_reg =
@@ -135,12 +135,7 @@ let emit_thread_id (s : reg_state) : LA.instruction list * LT.reg =
       p_oob = (flat_reg >= bound_reg)
       @p_oob bra exit_lbl
     v} *)
-let emit_bounds_guard
-    (s          : reg_state)
-    (flat_reg   : LT.reg)
-    (bound_reg  : LT.reg)
-    (exit_lbl   : string)
-  : LA.instruction list =
+let emit_bounds_guard(s: reg_state)(flat_reg: LT.reg)(bound_reg: LT.reg)(exit_lbl: string) : LA.instruction list =
   let p_oob = fresh s LT.Pred in
   [
     LA.Compare (LA.Ge, p_oob, LT.Reg flat_reg, LT.Reg bound_reg, LT.U32);
