@@ -1,16 +1,24 @@
 (test
  (name test_ast_instantiation)
+ (modules test_ast_instantiation)
  (libraries gas_dsl))
 
 (test
  (name test_ptx_printer)
+ (modules test_ptx_printer)
  (libraries gas_dsl))
 
 (test
  (name test_translate_lower_ir_to_ptx)
+ (modules test_translate_lower_ir_to_ptx)
  (libraries gas_dsl str))
 
 (test
  (name test_vecadd_LIR_to_ptx)
+ (modules test_vecadd_LIR_to_ptx)
  (libraries gas_dsl))
 
+(test
+ (name test_graphir_translate)
+ (modules test_graphir_translate)
+ (libraries gas_dsl))
