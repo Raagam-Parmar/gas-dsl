@@ -1,12 +1,6 @@
-(** {1 AST & Type Instantiation Tests}
-
-    This test suite verifies that algebraic data types and AST node
-    constructors across GraphIR, LowerIR, and PTX can be instantiated
-    cleanly without type errors or representation mismatches. *)
-
 open Gas_dsl
 
-(** Verifies instantiation of GraphIR types and AST constructs. *)
+(* Verifies instantiation of GraphIR types and AST constructs. *)
 let test_graph_ir () =
   let open GraphIR.Types in
   let open GraphIR.Ast in
@@ -61,7 +55,7 @@ let test_lower_ir () =
   assert (List.length k.body = 7);
   print_endline "  [OK] LowerIR AST instantiated successfully."
 
-(** Verifies instantiation of PTX assembly AST nodes and directives. *)
+(* Verifies instantiation of PTX assembly AST nodes and directives. *)
 let test_ptx_ast () =
   let open Ptx.Types in
   let open Ptx.Ast in

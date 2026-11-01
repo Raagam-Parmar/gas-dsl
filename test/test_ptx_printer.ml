@@ -1,13 +1,6 @@
-(** {1 PTX Pretty-Printer & Assembler Tests}
-
-    This test suite verifies that the PTX pretty printer serializes
-    PTX AST programs into syntactically valid NVIDIA PTX assembly text,
-    and validates the emitted text against the NVIDIA [ptxas] assembler
-    targeting Compute Capability [sm_80]. *)
-
 open Gas_dsl
 
-(** Tests pretty-printing a representative PTX program and validates with ptxas. *)
+(* Tests pretty-printing a representative PTX program and validates with ptxas. *)
 let test_ptx_printer_and_ptxas () =
   let open Ptx.Types in
   let open Ptx.Ast in
