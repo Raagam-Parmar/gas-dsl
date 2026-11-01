@@ -1,11 +1,6 @@
-(** {1 Vector Addition: LowerIR to PTX Pretty-Printer}
-
-    Constructs a complete vector addition kernel (c[i] = a[i] + b[i]) in LowerIR,
-    translates it to PTX AST, and prints the generated NVIDIA PTX assembly. *)
-
 open Gas_dsl
 
-(* ── tiny helpers ─────────────────────────────────────────────────────── *)
+(* tiny helpers *)
 
 let reg id ty : LowerIR.Types.reg = { LowerIR.Types.id; ty }
 
@@ -14,7 +9,7 @@ let u64 id = reg id LowerIR.Types.U64
 let f32 id = reg id LowerIR.Types.F32
 let pred id = reg id LowerIR.Types.Pred
 
-(* ── vecadd LowerIR to PTX ────────────────────────────────────────────── *)
+(* vecadd LowerIR to PTX *)
 
 let print_vecadd_ptx () =
   let open LowerIR in
@@ -76,8 +71,6 @@ let print_vecadd_ptx () =
   let prog = Translate.translate [k] in
   let ptx  = Ptx.Printer.to_string prog in
   print_string ptx
-
-(* ── runner ───────────────────────────────────────────────────────────── *)
 
 let () =
   print_vecadd_ptx ()

@@ -1,6 +1,6 @@
 open Gas_dsl
 
-(* ── tiny helpers ─────────────────────────────────────────────────────── *)
+(* tiny helpers *)
 
 let reg id ty : LowerIR.Types.reg = { LowerIR.Types.id; ty }
 
@@ -9,7 +9,7 @@ let u64 id = reg id LowerIR.Types.U64
 let f32 id = reg id LowerIR.Types.F32
 let pred id = reg id LowerIR.Types.Pred
 
-(* ── check helpers ────────────────────────────────────────────────────── *)
+(* check helpers *)
 
 let assert_contains haystack needle =
   if not (let re = Str.regexp_string needle in
@@ -44,7 +44,7 @@ let check_contains lbl haystack needle =
 
 let _ = assert_contains   (* silence unused-value warning *)
 
-(* ── test 1: header directives ────────────────────────────────────────── *)
+(* test 1: header directives *)
 
 let test_header_directives () =
   let open LowerIR in
@@ -59,7 +59,7 @@ let test_header_directives () =
   check_contains "target sm_75"           ptx ".target sm_75";
   check_contains "address_size 64"        ptx ".address_size 64"
 
-(* ── test 2: kernel name and params ──────────────────────────────────── *)
+(* test 2: kernel name and params *)
 
 let test_kernel_name_and_params () =
   let open LowerIR in
@@ -77,7 +77,7 @@ let test_kernel_name_and_params () =
   check_contains "u32 param in PTX"        ptx ".u32 num_edges";
   check_contains "u64 param in PTX"        ptx ".u64 dist_ptr"
 
-(* ── test 3: LoadParam + MulWideU32 + AddU64 ─────────────────────────── *)
+(* test 3: LoadParam + MulWideU32 + AddU64 *)
 
 let test_address_arithmetic () =
   let open LowerIR in
@@ -99,7 +99,7 @@ let test_address_arithmetic () =
   check_contains "mul.wide.u32"     ptx "mul.wide.u32";
   check_contains "add.u64"          ptx "add.u64"
 
-(* ── test 4: Atomic integer min (SSSP) ───────────────────────────────── *)
+(* test 4: Atomic integer min (SSSP) *)
 
 let test_atomic_min_u32 () =
   let open LowerIR in
@@ -116,7 +116,7 @@ let test_atomic_min_u32 () =
   let ptx  = Ptx.Printer.to_string prog in
   check_contains "atom.global.min.u32" ptx "atom.global.min.u32"
 
-(* ── test 5: Compare + BranchIf (boundary guard) ────────────────────── *)
+(* test 5: Compare + BranchIf (boundary guard) *)
 
 let test_boundary_guard () =
   let open LowerIR in
@@ -138,7 +138,7 @@ let test_boundary_guard () =
   check_contains "@%p0 branch"    ptx "@%p0 bra $EXIT";
   check_contains "$EXIT label"    ptx "$EXIT:"
 
-(* ── test 6: CAS loop expansion (SSSP float min) ─────────────────────── *)
+(* test 6: CAS loop expansion (SSSP float min) *)
 
 let test_cas_loop_expansion () =
   let open LowerIR in
@@ -165,7 +165,7 @@ let test_cas_loop_expansion () =
   check_contains "setp skip in CAS"      ptx "setp.ge.f32";
   check_contains "atom.global.cas.b32"   ptx "atom.global.cas.b32"
 
-(* ── test 7: multiple kernels in one program ─────────────────────────── *)
+(* test 7: multiple kernels in one program *)
 
 let test_multi_kernel () =
   let open LowerIR in
@@ -184,7 +184,7 @@ let test_multi_kernel () =
   check_contains "scatter_kernel present" ptx "scatter_kernel";
   check_contains "apply_kernel present"   ptx "apply_kernel"
 
-(* ── test 8: reg declarations emitted ────────────────────────────────── *)
+(* test 8: reg declarations emitted *)
 
 let test_reg_declarations () =
   let open LowerIR in
@@ -204,7 +204,7 @@ let test_reg_declarations () =
   check_contains ".reg .u64"  ptx ".reg .u64";
   check_contains ".reg .pred" ptx ".reg .pred"
 
-(* ── runner ───────────────────────────────────────────────────────────── *)
+(* runner *)
 
 let () =
   print_endline "=== translate LowerIR_to_ptx ===";
