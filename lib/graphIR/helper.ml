@@ -34,10 +34,10 @@ let fresh (s : reg_state) (ty : LT.data_type) : LT.reg =
 (** [lower_prim_type t] maps a {!GraphIR.Types.prim_type} to the
     corresponding {!LowerIR.Types.data_type}.
 
-    - [TyF32] → [F32]   (32-bit float register / memory slot)
-    - [TyU32] → [U32]   (32-bit unsigned integer)
-    - [TyI32] → [S32]   (32-bit signed integer)
-    - [TyB8]  → [U32]   (8-bit booleans are widened to 32-bit for register use;
+    - [TyF32] -> [F32]   (32-bit float register / memory slot)
+    - [TyU32] -> [U32]   (32-bit unsigned integer)
+    - [TyI32] -> [S32]   (32-bit signed integer)
+    - [TyB8]  -> [U32]   (8-bit booleans are widened to 32-bit for register use;
                           hardware does not have 8-bit register banks) *)
 let lower_prim_type : prim_type -> LT.data_type = function
   | TyF32 -> LT.F32
@@ -60,7 +60,7 @@ let stride_of_prim : prim_type -> int = function
       synthesised as a Compare-and-Swap retry loop (see AGENTS.md §3.3).
     - [CasMaxF32]:       analogous float max CAS loop. *)
 type atomic_strategy =
-  | NativeAtomic of LT.atomic_op (** Direct hardware atomic suffices *)
+  | NativeAtomic of LT.atomic_op (** Direct hardware atomic suffices  *)
   | CasMinF32                    (** Float min via CAS retry loop     *)
   | CasMaxF32                    (** Float max via CAS retry loop     *)
 
@@ -94,24 +94,14 @@ let atomic_strategy_of (f : field) (r : reduction_op) : atomic_strategy =
     - Vertex buffers: ["{name}_ptr"]
     - Edge buffers:   ["{name}_ptr"]
     - Scalars:        ["num_edges"], ["num_vertices"] *)
-let scatter_params
-    (vertex_fields : field list)
-    (edge_fields   : field list)
-  : (string * LT.data_type) list =
+let scatter_params (vertex_fields : field list) (edge_fields : field list) : (string * LT.data_type) list =
   let ptr_params =
     List.map (fun f -> (f.name ^ "_ptr", LT.U64))
       (vertex_fields @ edge_fields)
   in
   (* Augmented CSR arrays: row_offsets, src_indices, dst_indices are always present *)
-  let csr_params = [
-    ("row_offsets_ptr", LT.U64);
-    ("src_indices_ptr", LT.U64);
-    ("dst_indices_ptr", LT.U64);
-  ] in
-  ptr_params @ csr_params @ [
-    ("num_edges",    LT.U32);
-    ("num_vertices", LT.U32);
-  ]
+  let csr_params = [ ("row_offsets_ptr", LT.U64);("src_indices_ptr", LT.U64); ("dst_indices_ptr", LT.U64);] in
+  ptr_params @ csr_params @ [("num_edges", LT.U32);("num_vertices", LT.U32);]
 
 (** [apply_params vertex_fields] constructs the typed parameter list for a
     vertex-parallel Apply kernel.
