@@ -8,6 +8,10 @@ jobs:
     container:
       image: ghcr.io/raagam-parmar/gas-dsl-ci:latest
       options: --user root
+      env:
+        OPAMROOT: /home/opam/.opam
+        OPAMROOTISOK: "true"
     steps:
       - uses: actions/checkout@v4
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: opam exec -- dune build @all @runtest @doc
