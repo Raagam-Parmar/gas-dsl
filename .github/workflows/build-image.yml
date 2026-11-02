@@ -3,7 +3,7 @@ name: Build CI image
 on:
   workflow_dispatch:
   push:
-    paths: ["*.opam", "dune-project", "Dockerfile"]
+    paths: ["*.opam", "dune-project", "Dockerfile", ".github/workflows/build-image.yml"]
 
 jobs:
   image:
@@ -21,4 +21,4 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/murali47k/gas-dsl-ci:latest
+          tags: ghcr.io/raagam-parmar/gas-dsl-ci:latest
