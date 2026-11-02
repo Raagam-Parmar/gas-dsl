@@ -6,12 +6,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-compiler: 5.2.x
+          ocaml-compiler: 5.2
 
       - run: opam install . --deps-only --with-test --with-doc --yes
 
-      - run: dune build @all @runtest @doc
+      - run: opam exec -- dune build @all @runtest @doc
