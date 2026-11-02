@@ -4,14 +4,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/murali47k/gas-dsl-ci:latest
+      options: --user root
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ocaml/setup-ocaml@v3
-        with:
-          ocaml-compiler: 5.2
-
-      - run: opam install . --deps-only --with-test --with-doc --yes
-
       - run: opam exec -- dune build @all @runtest @doc
