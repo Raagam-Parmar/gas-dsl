@@ -4,14 +4,14 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/raagam-parmar/gas-dsl-ci:latest
+      options: --user root
+      env:
+        OPAMROOT: /home/opam/.opam
+        OPAMROOTISOK: "true"
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: ocaml/setup-ocaml@v3
-        with:
-          ocaml-compiler: 5.2.x
-
-      - run: opam install . --deps-only --with-test --with-doc --yes
-
-      - run: dune build @all @runtest @doc
+      - uses: actions/checkout@v4
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - run: opam exec -- dune build @all @runtest @doc
