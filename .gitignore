@@ -36,4 +36,4 @@ setup.log
 _opam/
 
 # output of runs
-/pipeline/output/
+/pipeline/output/*
