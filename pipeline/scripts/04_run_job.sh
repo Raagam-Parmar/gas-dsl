@@ -4,7 +4,7 @@
 set -uo pipefail
 source "$(dirname "$0")/config.sh"
 
-JOB_ID=$($SSH "$REMOTE" "cd ~/$REMOTE_DIR && rm -f job.*.out job.*.err && sbatch --parsable submit.sh")
+JOB_ID=$($SSH "$REMOTE" "cd ~/$REMOTE_DIR && rm -f job.*.out job.*.err ${KERNEL_NAME}_profile.* && sbatch --parsable submit.sh")
 if [ -z "$JOB_ID" ]; then echo "Submit failed"; exit 1; fi
 echo "$JOB_ID" > "$JOBID_FILE"
 echo "Job ID: $JOB_ID"
