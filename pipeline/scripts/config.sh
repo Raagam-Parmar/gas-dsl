@@ -1,5 +1,7 @@
 #!/bin/bash
-# Single place to edit. Sourced by every script (runs on your laptop)./home/murali-karthick/Downloads/submit.template.sh
+# Single place to edit. Sourced by every script (runs on your laptop).
+# No password stored. Use key auth:  ssh-copy-id s112301019-unnikrishnan@192.168.1.133
+# or export SSHPASS (needs `sshpass`):  read -rs SSHPASS && export SSHPASS
 
 PIPELINE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -21,7 +23,6 @@ PTX_NAME="$(basename "$PTX_FILE")"
 HOST_NAME="$(basename "$HOST_FILE")"
 SUBMIT_TEMPLATE="$PIPELINE_DIR/scripts/submit.template.sh"
 OUTPUT_DIR="$PIPELINE_DIR/output"
-JOBID_FILE="$PIPELINE_DIR/.last_job_id"
 
 SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ControlMaster=auto -o ControlPath=/tmp/hpc-%r@%h:%p -o ControlPersist=10m"
 if [ -n "${SSHPASS:-}" ] && command -v sshpass >/dev/null 2>&1; then
