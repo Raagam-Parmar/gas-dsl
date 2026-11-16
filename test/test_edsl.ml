@@ -131,10 +131,21 @@ let test_conflicting_field_type () =
   assert raised;
   print_endline "  [OK] Conflicting field type check passed."
 
+(** Compiles every algorithm in Examples.all and validates with ptxas. *)
+let test_all_examples () =
+  List.iter
+    (fun (name, algo) ->
+      let ptx = compile_to_ptx algo in
+      assert_contains (name ^ " scatter") ptx (name ^ "_scatter");
+      validate_ptxas ("Examples." ^ name) ptx)
+    Examples.all;
+  print_endline "  [OK] All Examples.all algorithms compiled & validated."
+
 let () =
   print_endline "=== Running EDSL Tests ===";
   test_sssp_u32 ();
   test_sssp_f32 ();
   test_pagerank ();
   test_conflicting_field_type ();
+  test_all_examples ();
   print_endline "=== All EDSL Tests Passed! ==="

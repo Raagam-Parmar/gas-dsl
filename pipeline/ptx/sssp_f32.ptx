@@ -1,0 +1,62 @@
+.version 7.0
+.target sm_75
+.address_size 64
+
+.visible .entry sssp_f32_scatter(
+    .param .u64 dist_ptr,
+    .param .u64 weight_ptr,
+    .param .u64 row_offsets_ptr,
+    .param .u64 src_indices_ptr,
+    .param .u64 dst_indices_ptr,
+    .param .u32 num_edges,
+    .param .u32 num_vertices
+)
+{
+    .reg .u32 %r<19>;
+    .reg .u64 %rd<29>;
+    .reg .f32 %f<30>;
+    .reg .pred %p<32>;
+    mov.u32 %r0, %tid.x;
+    mov.u32 %r1, %ntid.x;
+    mov.u32 %r2, %ctaid.x;
+    mad.lo.u32 %r3, %r2, %r1, %r0;
+    ld.param.u32 %r4, [num_edges];
+    setp.ge.u32 %p5, %r3, %r4;
+    @%p5 bra $SCATTER_EXIT;
+    ld.param.u64 %rd6, [src_indices_ptr];
+    cvta.to.global.u64 %rd7, %rd6;
+    ld.param.u64 %rd8, [dst_indices_ptr];
+    cvta.to.global.u64 %rd9, %rd8;
+    mul.wide.u32 %rd10, %r3, 4;
+    add.u64 %rd11, %rd7, %rd10;
+    ld.global.u32 %r12, [%rd11];
+    mul.wide.u32 %rd13, %r3, 4;
+    add.u64 %rd14, %rd9, %rd13;
+    ld.global.u32 %r15, [%rd14];
+    ld.param.u64 %rd16, [dist_ptr];
+    cvta.to.global.u64 %rd17, %rd16;
+    ld.param.u64 %rd18, [weight_ptr];
+    cvta.to.global.u64 %rd19, %rd18;
+    mul.wide.u32 %rd20, %r12, 4;
+    add.u64 %rd21, %rd17, %rd20;
+    ld.global.f32 %f22, [%rd21];
+    mul.wide.u32 %rd23, %r3, 4;
+    add.u64 %rd24, %rd19, %rd23;
+    ld.global.f32 %f25, [%rd24];
+    add.f32 %f26, %f22, %f25;
+    mul.wide.u32 %rd27, %r15, 4;
+    add.u64 %rd28, %rd17, %rd27;
+    mov.b32 %r16, %f26;
+$CAS_LOOP_0:
+    ld.global.f32 %f29, [%rd28];
+    setp.ge.f32 %p30, %f29, %f26;
+    @%p30 bra $CAS_END_0;
+    mov.b32 %r17, %f29;
+    atom.global.cas.b32 %r18, [%rd28], %r17, %r16;
+    setp.eq.b32 %p31, %r18, %r17;
+    @!%p31 bra $CAS_LOOP_0;
+$CAS_END_0:
+$SCATTER_EXIT:
+    ret;
+}
+
