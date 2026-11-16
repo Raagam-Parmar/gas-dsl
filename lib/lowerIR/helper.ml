@@ -52,40 +52,6 @@ let lower_arith (op : binop) (ty : P.ptx_type) (dst : P.ptx_reg)
   | Mul | Div | And | Or
   | Xor | Shl | Shr             -> PA.Mul (ty, dst, a, b)
 
-(* ── CAS loop expansion ──────────────────────────────────────────────── *)
-
-(* Expands CasLoop into the PTX CAS retry sequence (AGENTS.md §3.3):
-     $CAS_LOOP_N:
-       ld.global.f32  %cur_val, [%addr]
-       setp.ge.f32    %pred,    %cur_val, %new_val   (min; le for max)
-       @%pred bra     $CAS_END_N
-       atom.global.cas.b32 %old, [%addr], %cur_bits, %new_bits
-       setp.eq.b32    %succ,    %old, %cur_bits
-       @!%succ bra    $CAS_LOOP_N
-     $CAS_END_N:
-*)
-let expand_cas_loop ~target_addr ~new_val ~cur_val ~pred_reg ~is_min
-    (loop_id : int) : PA.statement list =
-  let loop_lbl  = Printf.sprintf "$CAS_LOOP_%d" loop_id in
-  let end_lbl   = Printf.sprintf "$CAS_END_%d"  loop_id in
-  let addr_op   = PA.Mem (lower_reg target_addr, None) in
-  let cur_f     = lower_reg cur_val  in
-  let new_f     = lower_reg new_val  in
-  let pred      = lower_reg pred_reg in
-  let skip_cmp  = if is_min then "ge.f32" else "le.f32" in
-  let succ_pred = match pred with P.P i -> P.P (i + 1) | r -> r in
-  let to_r32    = function P.F i -> P.R i | r -> r in
-  [
-    PA.LabelDef loop_lbl;
-    PA.LdGlobal (P.F32, cur_f, addr_op, None);
-    PA.SetP (skip_cmp, pred, PA.Reg cur_f, PA.Reg new_f);
-    PA.Bra  (end_lbl, Some (pred, true));
-    PA.AtomGlobal (P.AtomCas, P.B32, to_r32 cur_f, addr_op, PA.Reg (to_r32 new_f));
-    PA.SetP ("eq.b32", succ_pred, PA.Reg (to_r32 cur_f), PA.Reg (to_r32 cur_f));
-    PA.Bra  (loop_lbl, Some (succ_pred, false));
-    PA.LabelDef end_lbl;
-  ]
-
 (* ── register bank counting & .reg declarations ─────────────────────── *)
 
 type reg_counts = {
@@ -94,6 +60,56 @@ type reg_counts = {
   mutable n_f  : int;
   mutable n_p  : int;
 }
+
+let alloc_r (c : reg_counts) : P.ptx_reg =
+  let id = c.n_r in
+  c.n_r <- id + 1;
+  P.R id
+
+let alloc_p (c : reg_counts) : P.ptx_reg =
+  let id = c.n_p in
+  c.n_p <- id + 1;
+  P.P id
+
+(* ── CAS loop expansion ──────────────────────────────────────────────── *)
+
+(* Expands CasLoop into the PTX CAS retry sequence (AGENTS.md §3.3):
+       mov.b32        %r_new,   %new_val
+     $CAS_LOOP_N:
+       ld.global.f32  %cur_val, [%addr]
+       setp.ge.f32    %pred,    %cur_val, %new_val   (min; le for max)
+       @%pred bra     $CAS_END_N
+       mov.b32        %r_cur,   %cur_val
+       atom.global.cas.b32 %r_old, [%addr], %r_cur, %r_new
+       setp.eq.b32    %succ,    %r_old, %r_cur
+       @!%succ bra    $CAS_LOOP_N
+     $CAS_END_N:
+*)
+let expand_cas_loop ~(counts : reg_counts) ~target_addr ~new_val ~cur_val ~pred_reg ~is_min
+    (loop_id : int) : PA.statement list =
+  let loop_lbl  = Printf.sprintf "$CAS_LOOP_%d" loop_id in
+  let end_lbl   = Printf.sprintf "$CAS_END_%d"  loop_id in
+  let addr_op   = PA.Mem (lower_reg target_addr, None) in
+  let cur_f     = lower_reg cur_val  in
+  let new_f     = lower_reg new_val  in
+  let pred      = lower_reg pred_reg in
+  let skip_cmp  = if is_min then "ge.f32" else "le.f32" in
+  let r_new     = alloc_r counts in
+  let r_cur     = alloc_r counts in
+  let r_old     = alloc_r counts in
+  let succ_pred = alloc_p counts in
+  [
+    PA.Mov      (P.B32, r_new, PA.Reg new_f);
+    PA.LabelDef loop_lbl;
+    PA.LdGlobal (P.F32, cur_f, addr_op, None);
+    PA.SetP     (skip_cmp, pred, PA.Reg cur_f, PA.Reg new_f);
+    PA.Bra      (end_lbl, Some (pred, true));
+    PA.Mov      (P.B32, r_cur, PA.Reg cur_f);
+    PA.AtomCas  (r_old, addr_op, PA.Reg r_cur, PA.Reg r_new);
+    PA.SetP     ("eq.b32", succ_pred, PA.Reg r_old, PA.Reg r_cur);
+    PA.Bra      (loop_lbl, Some (succ_pred, false));
+    PA.LabelDef end_lbl;
+  ]
 
 let count_regs (body : instruction list) : reg_counts =
   let c = { n_r = 0; n_rd = 0; n_f = 0; n_p = 0 } in
@@ -119,9 +135,7 @@ let count_regs (body : instruction list) : reg_counts =
     | Compare (_, d, a, b, _)   -> bump d; bump_op a; bump_op b
     | Atomic (_, d, a, v, _)    -> bump d; bump a; bump_op v
     | CasLoop { target_addr; new_val; cur_val; pred_reg; _ } ->
-        bump target_addr; bump new_val; bump cur_val; bump pred_reg;
-        let extra_p = pred_reg.id + 2 in
-        if extra_p > c.n_p then c.n_p <- extra_p
+        bump target_addr; bump new_val; bump cur_val; bump pred_reg
     | BranchIf (p, _)           -> bump p
     | Label _ | Branch _ | Return -> ()
   ) body;

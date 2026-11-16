@@ -162,6 +162,10 @@ let pp_statement ppf = function
       Fmt.pf ppf "    atom.global.%a%a %a, %a, %a;"
         pp_atomic_action action pp_ptx_type ty pp_ptx_reg dst pp_operand addr pp_operand val_op
 
+  | AtomCas (dst, addr, cmp_op, val_op) ->
+      Fmt.pf ppf "    atom.global.cas.b32 %a, %a, %a, %a;"
+        pp_ptx_reg dst pp_operand addr pp_operand cmp_op pp_operand val_op
+
 (* Formats a single formal parameter in a kernel signature *)
 let pp_param ppf (name, ty) =
   Fmt.pf ppf "    .param %a %s" pp_ptx_type ty name

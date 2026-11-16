@@ -27,7 +27,7 @@ let assert_contains label haystack needle =
 (* Compile an EDSL-constructed GraphIR algorithm all the way to PTX text *)
 let compile_to_ptx algo =
   let kernels = GraphIR.Translate.translate algo in
-  let prog    = LowerIR.Translate.translate ~target:"sm_80" kernels in
+  let prog    = LowerIR.Translate.translate kernels in
   Ptx.Printer.to_string prog
 
 (* Validate emitted PTX with NVIDIA ptxas if available *)
@@ -42,12 +42,12 @@ let validate_ptxas label ptx_code =
     let (tmp_file, tmp_out) = Filename.open_temp_file "edsl_kernel_" ".ptx" in
     output_string tmp_out ptx_code;
     close_out tmp_out;
-    let cmd = Printf.sprintf "%s -arch=sm_80 -m64 %s -o /dev/null 2>&1" ptxas_bin tmp_file in
+    let cmd = Printf.sprintf "%s -arch=sm_75 -m64 %s -o /dev/null 2>&1" ptxas_bin tmp_file in
     let exit_code = Sys.command cmd in
     Sys.remove tmp_file;
     if exit_code <> 0 then
       failwith (Printf.sprintf "%s: ptxas failed with exit code %d\n%s" label exit_code ptx_code);
-    Printf.printf "  [OK] %s validated with ptxas (sm_80)\n" label
+    Printf.printf "  [OK] %s validated with ptxas (sm_75)\n" label
   end else
     Printf.printf "  [SKIP] ptxas not found for %s\n" label
 
@@ -83,8 +83,7 @@ let test_sssp_f32 () =
   in
   let ptx = compile_to_ptx algo in
   assert_contains "sssp_f32 CAS" ptx "atom.global.cas.b32";
-  (* Note: LowerIR.Helper.expand_cas_loop currently emits an incomplete atom.cas.b32;
-     skip ptxas on sssp_f32 until LowerIR CAS expansion is fixed. *)
+  validate_ptxas "sssp_f32" ptx;
   print_endline "  [OK] EDSL SSSP (f32) passed."
 
 (** Tests PageRank (f32) with both scatter and apply stages. *)
