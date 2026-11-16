@@ -1,0 +1,94 @@
+.version 7.0
+.target sm_75
+.address_size 64
+
+.visible .entry pagerank_scatter(
+    .param .u64 rank_ptr,
+    .param .u64 out_deg_ptr,
+    .param .u64 rank_accum_ptr,
+    .param .u64 row_offsets_ptr,
+    .param .u64 src_indices_ptr,
+    .param .u64 dst_indices_ptr,
+    .param .u32 num_edges,
+    .param .u32 num_vertices
+)
+{
+    .reg .u32 %r<16>;
+    .reg .u64 %rd<31>;
+    .reg .f32 %f<32>;
+    .reg .pred %p<6>;
+    mov.u32 %r0, %tid.x;
+    mov.u32 %r1, %ntid.x;
+    mov.u32 %r2, %ctaid.x;
+    mad.lo.u32 %r3, %r2, %r1, %r0;
+    ld.param.u32 %r4, [num_edges];
+    setp.ge.u32 %p5, %r3, %r4;
+    @%p5 bra $SCATTER_EXIT;
+    ld.param.u64 %rd6, [src_indices_ptr];
+    cvta.to.global.u64 %rd7, %rd6;
+    ld.param.u64 %rd8, [dst_indices_ptr];
+    cvta.to.global.u64 %rd9, %rd8;
+    mul.wide.u32 %rd10, %r3, 4;
+    add.u64 %rd11, %rd7, %rd10;
+    ld.global.u32 %r12, [%rd11];
+    mul.wide.u32 %rd13, %r3, 4;
+    add.u64 %rd14, %rd9, %rd13;
+    ld.global.u32 %r15, [%rd14];
+    ld.param.u64 %rd16, [rank_ptr];
+    cvta.to.global.u64 %rd17, %rd16;
+    ld.param.u64 %rd18, [out_deg_ptr];
+    cvta.to.global.u64 %rd19, %rd18;
+    ld.param.u64 %rd20, [rank_accum_ptr];
+    cvta.to.global.u64 %rd21, %rd20;
+    mul.wide.u32 %rd22, %r12, 4;
+    add.u64 %rd23, %rd17, %rd22;
+    ld.global.f32 %f24, [%rd23];
+    mul.wide.u32 %rd25, %r12, 4;
+    add.u64 %rd26, %rd19, %rd25;
+    ld.global.f32 %f27, [%rd26];
+    mul.f32 %f28, %f24, %f27;
+    mul.wide.u32 %rd29, %r15, 4;
+    add.u64 %rd30, %rd21, %rd29;
+    atom.global.add.f32 %f31, [%rd30], %f28;
+$SCATTER_EXIT:
+    ret;
+}
+
+.visible .entry pagerank_apply(
+    .param .u64 rank_ptr,
+    .param .u64 out_deg_ptr,
+    .param .u64 rank_accum_ptr,
+    .param .u32 num_vertices
+)
+{
+    .reg .u32 %r<5>;
+    .reg .u64 %rd<21>;
+    .reg .f32 %f<19>;
+    .reg .pred %p<6>;
+    mov.u32 %r0, %tid.x;
+    mov.u32 %r1, %ntid.x;
+    mov.u32 %r2, %ctaid.x;
+    mad.lo.u32 %r3, %r2, %r1, %r0;
+    ld.param.u32 %r4, [num_vertices];
+    setp.ge.u32 %p5, %r3, %r4;
+    @%p5 bra $APPLY_EXIT;
+    ld.param.u64 %rd6, [rank_ptr];
+    cvta.to.global.u64 %rd7, %rd6;
+    ld.param.u64 %rd8, [out_deg_ptr];
+    cvta.to.global.u64 %rd9, %rd8;
+    ld.param.u64 %rd10, [rank_accum_ptr];
+    cvta.to.global.u64 %rd11, %rd10;
+    add.f32 %f12, 0.150000, 0.0;
+    add.f32 %f13, 0.850000, 0.0;
+    mul.wide.u32 %rd14, %r3, 4;
+    add.u64 %rd15, %rd11, %rd14;
+    ld.global.f32 %f16, [%rd15];
+    mul.f32 %f17, %f13, %f16;
+    add.f32 %f18, %f12, %f17;
+    mul.wide.u32 %rd19, %r3, 4;
+    add.u64 %rd20, %rd7, %rd19;
+    st.global.f32 [%rd20], %f18;
+$APPLY_EXIT:
+    ret;
+}
+
