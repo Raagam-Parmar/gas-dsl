@@ -68,6 +68,8 @@ type statement =
   (* --- Hardware Atomics --- *)
   | AtomGlobal of atomic_action * ptx_type * ptx_reg * ptx_operand * ptx_operand
     (** Global memory atomic instruction: [atom.global.action.type dst, [addr], val] *)
+  | AtomCas    of ptx_reg * ptx_operand * ptx_operand * ptx_operand
+    (** Global memory 32-bit compare-and-swap: [atom.global.cas.b32 dst, [addr], cmp, val] *)
 
 (** A GPU entry kernel function definition. *)
 type entry_function = {

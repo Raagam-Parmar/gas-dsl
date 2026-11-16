@@ -6,7 +6,7 @@ module PA = Ptx.Ast
 
 (* ── instruction lowering ────────────────────────────────────────────── *)
 
-let lower_instr (cas_counter : int ref) (instr : instruction) : PA.statement list =
+let lower_instr (cas_counter : int ref) (counts : reg_counts) (instr : instruction) : PA.statement list =
   match instr with
   | GetTid      dst -> [ PA.Mov (P.U32, lower_reg dst, PA.SpecialReg "%tid.x") ]
   | GetThreadId dst -> [ PA.Mov (P.U32, lower_reg dst, PA.SpecialReg "%tid.x") ]
@@ -34,7 +34,7 @@ let lower_instr (cas_counter : int ref) (instr : instruction) : PA.statement lis
   | CasLoop { target_addr; new_val; cur_val; pred_reg; is_min } ->
       let id = !cas_counter in
       incr cas_counter;
-      expand_cas_loop ~target_addr ~new_val ~cur_val ~pred_reg ~is_min id
+      expand_cas_loop ~counts ~target_addr ~new_val ~cur_val ~pred_reg ~is_min id
 
   | Label  name            -> [ PA.LabelDef name ]
   | Branch name            -> [ PA.Bra (name, None) ]
@@ -45,8 +45,9 @@ let lower_instr (cas_counter : int ref) (instr : instruction) : PA.statement lis
 
 let translate_kernel (k : kernel) : PA.entry_function =
   let cas_counter = ref 0 in
-  let decls  = reg_decls (count_regs k.body) in
-  let instrs = List.concat_map (lower_instr cas_counter) k.body in
+  let counts = count_regs k.body in
+  let instrs = List.concat_map (lower_instr cas_counter counts) k.body in
+  let decls  = reg_decls counts in
   {
     PA.name   = k.name;
     PA.params = List.map (fun (n, ty) -> (n, lower_type ty)) k.params;
