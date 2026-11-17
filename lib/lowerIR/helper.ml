@@ -50,6 +50,8 @@ let lower_arith (op : binop) (ty : P.ptx_type) (dst : P.ptx_reg)
   | Add                         -> PA.Add (ty, dst, a, b)
   | Sub                         -> PA.Sub (ty, dst, a, b)
   | Div                         -> PA.Div (ty, dst, a, b)
+  | Min                         -> PA.Min (ty, dst, a, b)
+  | Max                         -> PA.Max (ty, dst, a, b)
   | Mul | And | Or
   | Xor | Shl | Shr             -> PA.Mul (ty, dst, a, b)
 

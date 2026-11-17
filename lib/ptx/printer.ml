@@ -121,6 +121,12 @@ let pp_statement ppf = function
   | Sub (ty, dst, src1, src2) ->
       Fmt.pf ppf "    sub%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
 
+  | Min (ty, dst, src1, src2) ->
+      Fmt.pf ppf "    min%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Max (ty, dst, src1, src2) ->
+      Fmt.pf ppf "    max%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
   | Div (ty, dst, src1, src2) ->
       (* Float division needs a rounding mode; integer division does not *)
       let op =

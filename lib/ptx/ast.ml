@@ -48,6 +48,10 @@ type statement =
     (** Addition: [add.type dst, src1, src2] *)
   | Sub        of ptx_type * ptx_reg * ptx_operand * ptx_operand
     (** Subtraction: [sub.type dst, src1, src2] *)
+  | Min        of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Minimum: [min.type dst, src1, src2] *)
+  | Max        of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Maximum: [max.type dst, src1, src2] *)
   | Div        of ptx_type * ptx_reg * ptx_operand * ptx_operand
     (** Division: [div.rn.f32] for floats, [div.type] for integers *)
   | Mul        of ptx_type * ptx_reg * ptx_operand * ptx_operand
