@@ -141,11 +141,33 @@ let test_all_examples () =
     Examples.all;
   print_endline "  [OK] All Examples.all algorithms compiled & validated."
 
+(** Verifies that bitwise operators work in EDSL and compile to valid PTX. *)
+let test_bitwise_ops () =
+  let open Edsl in
+  let flags = Vertex.u32 "flags" in
+  let mask  = Vertex.u32 "mask" in
+  let out   = Vertex.u32 "out" in
+  let algo =
+    algorithm ~name:"bitwise_test"
+      ~scatter:(scatter ~target:out ~reduce:Min (fun ~src ~dst:_ ~edge:_ ->
+        (src.get flags &: src.get mask) |: ((src.get flags ^: int 1) <<: int 2) >>: int 1))
+      ()
+  in
+  let ptx = compile_to_ptx algo in
+  assert_contains "bitwise and.b32" ptx "and.b32";
+  assert_contains "bitwise or.b32"  ptx "or.b32";
+  assert_contains "bitwise xor.b32" ptx "xor.b32";
+  assert_contains "bitwise shl.b32" ptx "shl.b32";
+  assert_contains "bitwise shr.u32" ptx "shr.u32";
+  validate_ptxas "bitwise_test" ptx;
+  print_endline "  [OK] EDSL bitwise & shift operations passed."
+
 let () =
   print_endline "=== Running EDSL Tests ===";
   test_sssp_u32 ();
   test_sssp_f32 ();
   test_pagerank ();
   test_conflicting_field_type ();
+  test_bitwise_ops ();
   test_all_examples ();
   print_endline "=== All EDSL Tests Passed! ==="

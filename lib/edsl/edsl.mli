@@ -93,6 +93,21 @@ val min : 'a expr -> 'a expr -> 'a expr
 (** [max a b] computes the maximum of two expressions. *)
 val max : 'a expr -> 'a expr -> 'a expr
 
+(** [a &: b] computes bitwise AND of two expressions. *)
+val ( &: ) : 'a expr -> 'a expr -> 'a expr
+
+(** [a |: b] computes bitwise OR of two expressions. *)
+val ( |: ) : 'a expr -> 'a expr -> 'a expr
+
+(** [a ^: b] computes bitwise XOR of two expressions. *)
+val ( ^: ) : 'a expr -> 'a expr -> 'a expr
+
+(** [a <<: b] computes shift left of [a] by [b]. *)
+val ( <<: ) : 'a expr -> 'a expr -> 'a expr
+
+(** [a >>: b] computes shift right of [a] by [b]. *)
+val ( >>: ) : 'a expr -> 'a expr -> 'a expr
+
 (** {2 Stage & Algorithm Builders} *)
 
 (** [scatter ~target ~reduce fn] builds an edge-parallel Scatter stage.

@@ -17,6 +17,8 @@ type binop =
   | Sub  (** Subtraction (-) *)
   | Mul  (** Multiplication ( * ) *)
   | Div  (** Division (/) *)
+  | Min  (** Minimum of two values *)
+  | Max  (** Maximum of two values *)
   | And  (** Bitwise AND (&) *)
   | Or   (** Bitwise OR (|) *)
   | Xor  (** Bitwise XOR (^) *)

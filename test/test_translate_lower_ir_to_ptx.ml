@@ -204,6 +204,36 @@ let test_reg_declarations () =
   check_contains ".reg .u64"  ptx ".reg .u64";
   check_contains ".reg .pred" ptx ".reg .pred"
 
+(* test 9: bitwise and shift operations *)
+
+let test_bitwise_and_shifts () =
+  let open LowerIR in
+  let s32 id = reg id Types.S32 in
+  let k : Ast.kernel = {
+    Ast.name   = "bitwise_test";
+    Ast.params = [ ("x", Types.U32); ("y", Types.U32); ("s", Types.S32) ];
+    Ast.body   = [
+      Ast.LoadParam (u32 0, "x");
+      Ast.LoadParam (u32 1, "y");
+      Ast.LoadParam (s32 0, "s");
+      Ast.Arith (Ast.And, u32 2, Types.Reg (u32 0), Types.Reg (u32 1), Types.U32);
+      Ast.Arith (Ast.Or,  u32 3, Types.Reg (u32 0), Types.Reg (u32 1), Types.U32);
+      Ast.Arith (Ast.Xor, u32 4, Types.Reg (u32 0), Types.Reg (u32 1), Types.U32);
+      Ast.Arith (Ast.Shl, u32 5, Types.Reg (u32 0), Types.Reg (u32 1), Types.U32);
+      Ast.Arith (Ast.Shr, u32 6, Types.Reg (u32 0), Types.Reg (u32 1), Types.U32);
+      Ast.Arith (Ast.Shr, s32 1, Types.Reg (s32 0), Types.Reg (u32 1), Types.S32);
+      Ast.Return;
+    ];
+  } in
+  let prog = Translate.translate [k] in
+  let ptx  = Ptx.Printer.to_string prog in
+  check_contains "and.b32"  ptx "and.b32";
+  check_contains "or.b32"   ptx "or.b32";
+  check_contains "xor.b32"  ptx "xor.b32";
+  check_contains "shl.b32"  ptx "shl.b32";
+  check_contains "shr.u32"  ptx "shr.u32";
+  check_contains "shr.s32"  ptx "shr.s32"
+
 (* runner *)
 
 let () =
@@ -216,4 +246,5 @@ let () =
   test_cas_loop_expansion   (); print_endline "  [DONE] CAS loop expansion";
   test_multi_kernel         (); print_endline "  [DONE] multi-kernel program";
   test_reg_declarations     (); print_endline "  [DONE] reg declarations";
+  test_bitwise_and_shifts   (); print_endline "  [DONE] bitwise and shift operations";
   print_endline "\n === All translate LowerIR_to_ptx tests passed! === \n"

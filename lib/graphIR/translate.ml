@@ -98,8 +98,13 @@ and lower_binop (op : binop) (l : LT.reg) (_r : LT.reg)
     | Sub   -> LA.Sub
     | Mul   -> LA.Mul
     | Div   -> LA.Div
-    | MinOp -> LA.Add (* placeholder: min is handled via CAS / native atomic *)
-    | MaxOp -> LA.Add (* placeholder: max is handled via CAS / native atomic *)
+    | MinOp -> LA.Min
+    | MaxOp -> LA.Max
+    | AndOp -> LA.And
+    | OrOp  -> LA.Or
+    | XorOp -> LA.Xor
+    | ShlOp -> LA.Shl
+    | ShrOp -> LA.Shr
   in
   (lo, ty)
 

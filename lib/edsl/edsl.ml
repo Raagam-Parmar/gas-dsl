@@ -77,6 +77,21 @@ let min a b = GA.BinOp (GA.MinOp, a, b)
 (** [max a b] computes the maximum of two expressions. *)
 let max a b = GA.BinOp (GA.MaxOp, a, b)
 
+(** [a &: b] computes bitwise AND of two expressions. *)
+let ( &: ) a b = GA.BinOp (GA.AndOp, a, b)
+
+(** [a |: b] computes bitwise OR of two expressions. *)
+let ( |: ) a b = GA.BinOp (GA.OrOp, a, b)
+
+(** [a ^: b] computes bitwise XOR of two expressions. *)
+let ( ^: ) a b = GA.BinOp (GA.XorOp, a, b)
+
+(** [a <<: b] computes shift left of [a] by [b]. *)
+let ( <<: ) a b = GA.BinOp (GA.ShlOp, a, b)
+
+(** [a >>: b] computes shift right of [a] by [b]. *)
+let ( >>: ) a b = GA.BinOp (GA.ShrOp, a, b)
+
 (* Build a polymorphic reader pinned to a fixed GraphIR location *)
 let make_reader (loc : GT.location) : 'loc reader =
   { get = (fun f -> GA.LoadField (f, loc)) }

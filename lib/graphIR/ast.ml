@@ -18,6 +18,11 @@ type binop =
   | Div   (** Arithmetic division (/) *)
   | MinOp (** Minimum of two scalar expressions *)
   | MaxOp (** Maximum of two scalar expressions *)
+  | AndOp (** Bitwise AND of two scalar expressions *)
+  | OrOp  (** Bitwise OR of two scalar expressions *)
+  | XorOp (** Bitwise XOR of two scalar expressions *)
+  | ShlOp (** Shift left of two scalar expressions *)
+  | ShrOp (** Shift right of two scalar expressions *)
 
 (** Expression tree representing computations over vertex and edge properties. *)
 type expr =

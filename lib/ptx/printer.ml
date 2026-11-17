@@ -121,12 +121,72 @@ let pp_statement ppf = function
   | Sub (ty, dst, src1, src2) ->
       Fmt.pf ppf "    sub%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
 
+  | Min (ty, dst, src1, src2) ->
+      Fmt.pf ppf "    min%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Max (ty, dst, src1, src2) ->
+      Fmt.pf ppf "    max%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Div (ty, dst, src1, src2) ->
+      (* Float division needs a rounding mode; integer division does not *)
+      let op =
+        match ty with
+        | F32 -> "div.rn.f32"
+        | _   -> Fmt.str "div%a" pp_ptx_type ty
+      in
+      Fmt.pf ppf "    %s %a, %a, %a;" op pp_ptx_reg dst pp_operand src1 pp_operand src2
+
   | Mul (ty, dst, src1, src2) ->
       (* Floating point multiplication uses mul.f32; integer uses mul.lo.type *)
       let op =
         match ty with
         | F32 -> "mul.f32"
         | _   -> Fmt.str "mul.lo%a" pp_ptx_type ty
+      in
+      Fmt.pf ppf "    %s %a, %a, %a;" op pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | And (ty, dst, src1, src2) ->
+      let bit_ty =
+        match ty with
+        | Pred            -> ".pred"
+        | U64 | S64 | B64 -> ".b64"
+        | _               -> ".b32"
+      in
+      Fmt.pf ppf "    and%s %a, %a, %a;" bit_ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Or (ty, dst, src1, src2) ->
+      let bit_ty =
+        match ty with
+        | Pred            -> ".pred"
+        | U64 | S64 | B64 -> ".b64"
+        | _               -> ".b32"
+      in
+      Fmt.pf ppf "    or%s %a, %a, %a;" bit_ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Xor (ty, dst, src1, src2) ->
+      let bit_ty =
+        match ty with
+        | Pred            -> ".pred"
+        | U64 | S64 | B64 -> ".b64"
+        | _               -> ".b32"
+      in
+      Fmt.pf ppf "    xor%s %a, %a, %a;" bit_ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Shl (ty, dst, src1, src2) ->
+      let bit_ty =
+        match ty with
+        | U64 | S64 | B64 -> ".b64"
+        | _               -> ".b32"
+      in
+      Fmt.pf ppf "    shl%s %a, %a, %a;" bit_ty pp_ptx_reg dst pp_operand src1 pp_operand src2
+
+  | Shr (ty, dst, src1, src2) ->
+      let op =
+        match ty with
+        | S32             -> "shr.s32"
+        | S64             -> "shr.s64"
+        | U64 | B64       -> "shr.u64"
+        | _               -> "shr.u32"
       in
       Fmt.pf ppf "    %s %a, %a, %a;" op pp_ptx_reg dst pp_operand src1 pp_operand src2
 
