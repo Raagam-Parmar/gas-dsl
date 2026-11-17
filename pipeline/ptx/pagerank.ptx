@@ -46,7 +46,7 @@
     mul.wide.u32 %rd25, %r12, 4;
     add.u64 %rd26, %rd19, %rd25;
     ld.global.f32 %f27, [%rd26];
-    mul.f32 %f28, %f24, %f27;
+    div.rn.f32 %f28, %f24, %f27;
     mul.wide.u32 %rd29, %r15, 4;
     add.u64 %rd30, %rd21, %rd29;
     atom.global.add.f32 %f31, [%rd30], %f28;
