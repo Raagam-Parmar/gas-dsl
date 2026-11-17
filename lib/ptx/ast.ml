@@ -56,6 +56,16 @@ type statement =
     (** Division: [div.rn.f32] for floats, [div.type] for integers *)
   | Mul        of ptx_type * ptx_reg * ptx_operand * ptx_operand
     (** Standard multiplication: [mul.lo.type dst, src1, src2] *)
+  | And        of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Bitwise AND: [and.b32 dst, src1, src2] or [and.pred] *)
+  | Or         of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Bitwise OR: [or.b32 dst, src1, src2] or [or.pred] *)
+  | Xor        of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Bitwise XOR: [xor.b32 dst, src1, src2] or [xor.pred] *)
+  | Shl        of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Shift left: [shl.b32 dst, src, count] *)
+  | Shr        of ptx_type * ptx_reg * ptx_operand * ptx_operand
+    (** Shift right: [shr.type dst, src, count] *)
   | Mad        of ptx_type * ptx_reg * ptx_operand * ptx_operand * ptx_operand
     (** Multiply-and-add: [mad.lo.type dst, src1, src2, src3] *)
   | MulWideU32 of ptx_reg * ptx_operand * ptx_operand

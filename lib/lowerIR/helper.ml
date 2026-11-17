@@ -52,8 +52,12 @@ let lower_arith (op : binop) (ty : P.ptx_type) (dst : P.ptx_reg)
   | Div                         -> PA.Div (ty, dst, a, b)
   | Min                         -> PA.Min (ty, dst, a, b)
   | Max                         -> PA.Max (ty, dst, a, b)
-  | Mul | And | Or
-  | Xor | Shl | Shr             -> PA.Mul (ty, dst, a, b)
+  | Mul                         -> PA.Mul (ty, dst, a, b)
+  | And                         -> PA.And (ty, dst, a, b)
+  | Or                          -> PA.Or  (ty, dst, a, b)
+  | Xor                         -> PA.Xor (ty, dst, a, b)
+  | Shl                         -> PA.Shl (ty, dst, a, b)
+  | Shr                         -> PA.Shr (ty, dst, a, b)
 
 (* ── register bank counting & .reg declarations ─────────────────────── *)
 

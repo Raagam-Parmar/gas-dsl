@@ -100,6 +100,11 @@ and lower_binop (op : binop) (l : LT.reg) (_r : LT.reg)
     | Div   -> LA.Div
     | MinOp -> LA.Min
     | MaxOp -> LA.Max
+    | AndOp -> LA.And
+    | OrOp  -> LA.Or
+    | XorOp -> LA.Xor
+    | ShlOp -> LA.Shl
+    | ShrOp -> LA.Shr
   in
   (lo, ty)
 
