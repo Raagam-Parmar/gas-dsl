@@ -49,7 +49,8 @@ let lower_arith (op : binop) (ty : P.ptx_type) (dst : P.ptx_reg)
   match op with
   | Add                         -> PA.Add (ty, dst, a, b)
   | Sub                         -> PA.Sub (ty, dst, a, b)
-  | Mul | Div | And | Or
+  | Div                         -> PA.Div (ty, dst, a, b)
+  | Mul | And | Or
   | Xor | Shl | Shr             -> PA.Mul (ty, dst, a, b)
 
 (* ── register bank counting & .reg declarations ─────────────────────── *)

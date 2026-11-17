@@ -121,6 +121,15 @@ let pp_statement ppf = function
   | Sub (ty, dst, src1, src2) ->
       Fmt.pf ppf "    sub%a %a, %a, %a;" pp_ptx_type ty pp_ptx_reg dst pp_operand src1 pp_operand src2
 
+  | Div (ty, dst, src1, src2) ->
+      (* Float division needs a rounding mode; integer division does not *)
+      let op =
+        match ty with
+        | F32 -> "div.rn.f32"
+        | _   -> Fmt.str "div%a" pp_ptx_type ty
+      in
+      Fmt.pf ppf "    %s %a, %a, %a;" op pp_ptx_reg dst pp_operand src1 pp_operand src2
+
   | Mul (ty, dst, src1, src2) ->
       (* Floating point multiplication uses mul.f32; integer uses mul.lo.type *)
       let op =
