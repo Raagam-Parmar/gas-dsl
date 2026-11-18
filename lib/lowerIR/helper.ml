@@ -84,7 +84,7 @@ let alloc_p (c : reg_counts) : P.ptx_reg =
        mov.b32        %r_new,   %new_val
      $CAS_LOOP_N:
        ld.global.f32  %cur_val, [%addr]
-       setp.ge.f32    %pred,    %cur_val, %new_val   (min; le for max)
+       setp.le.f32    %pred,    %cur_val, %new_val   (min; ge for max)
        @%pred bra     $CAS_END_N
        mov.b32        %r_cur,   %cur_val
        atom.global.cas.b32 %r_old, [%addr], %r_cur, %r_new
@@ -100,7 +100,7 @@ let expand_cas_loop ~(counts : reg_counts) ~target_addr ~new_val ~cur_val ~pred_
   let cur_f     = lower_reg cur_val  in
   let new_f     = lower_reg new_val  in
   let pred      = lower_reg pred_reg in
-  let skip_cmp  = if is_min then "ge.f32" else "le.f32" in
+  let skip_cmp  = if is_min then "le.f32" else "ge.f32" in
   let r_new     = alloc_r counts in
   let r_cur     = alloc_r counts in
   let r_old     = alloc_r counts in

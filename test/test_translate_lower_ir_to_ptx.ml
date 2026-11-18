@@ -162,7 +162,7 @@ let test_cas_loop_expansion () =
   check_contains "CAS loop start label"  ptx "$CAS_LOOP_0:";
   check_contains "CAS end label"         ptx "$CAS_END_0:";
   check_contains "ld.global.f32 in CAS"  ptx "ld.global.f32";
-  check_contains "setp skip in CAS"      ptx "setp.ge.f32";
+  check_contains "setp skip in CAS"      ptx "setp.le.f32";
   check_contains "atom.global.cas.b32"   ptx "atom.global.cas.b32"
 
 (* test 7: multiple kernels in one program *)
