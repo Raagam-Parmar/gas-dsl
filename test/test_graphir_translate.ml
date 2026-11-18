@@ -103,7 +103,7 @@ let test_sssp_float_cas_loop () =
   check_contains "CAS loop start label"      ptx "$CAS_LOOP_0:";
   check_contains "CAS end label"             ptx "$CAS_END_0:";
   check_contains "ld.global.f32 in CAS"      ptx "ld.global.f32";
-  check_contains "setp.ge.f32 skip cmp"      ptx "setp.ge.f32";
+  check_contains "setp.le.f32 skip cmp"      ptx "setp.le.f32";
   check_contains "atom.global.cas.b32"       ptx "atom.global.cas.b32";
   (* must NOT emit native min on float *)
   check_not_contains "no atom.min.f32"       ptx "atom.global.min.f32"

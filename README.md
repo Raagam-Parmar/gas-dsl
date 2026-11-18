@@ -7,7 +7,7 @@
 
 Targeting static CSR graphs, the compiler generates decoupled GPU kernels, an edge-parallel **Scatter** kernel and an optional vertex-parallel **Apply** kernel, for algorithms like Single-Source Shortest Path (SSSP), PageRank, Breadth-First Search (BFS), and Weakly Connected Components (WCC).
 
-**Documentation:** [https://raagam-parmar.github.io/gas-dsl](https://raagam-parmar.github.io/gas-dsl)
+**Documentation:** [https://raagam-parmar.github.io/gas-dsl](https://raagam-parmar.github.io/gas-dsl/gas-dsl/index.html)
 
 ---
 
