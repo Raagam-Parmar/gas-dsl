@@ -1,6 +1,6 @@
 #!/bin/bash
 # Single place to edit. Sourced by every script (runs on your laptop).
-# No password stored. Use key auth:  ssh-copy-id s112301019-unnikrishnan@192.168.1.133
+# No password stored. Use key auth:  ssh-copy-id s112301042-unnikrishnan@192.168.1.133
 # or export SSHPASS (needs `sshpass`):  read -rs SSHPASS && export SSHPASS
 
 PIPELINE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -12,9 +12,9 @@ HOST_FILE="${HOST_FILE:-$PIPELINE_DIR/host/vecadd_host.cu}"
 KERNEL_NAME="${KERNEL_NAME:-$(basename "$PTX_FILE" .ptx)}"
 
 # ---------------- HPC settings ----------------
-HPC_USER="s112301019-unnikrishnan"
+HPC_USER="${HPC_USER:-s112301042-unnikrishnan}"
 HPC_HOST="192.168.1.133"          # institute network only
-ARCH="sm_80"                      # A30
+ARCH="sm_75"                      # A30
 CUDA_MODULE="cuda/11.3"
 REMOTE_DIR="pipeline/$KERNEL_NAME"   # relative to remote home
 
